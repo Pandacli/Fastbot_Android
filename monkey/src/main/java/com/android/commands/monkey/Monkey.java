@@ -451,7 +451,7 @@ public class Monkey {
      * @param args The command-line arguments
      */
     public static void main(String[] args) {
-        Logger.logo();
+        //Logger.logo();
         String version = fastbotversion;
         // Set the process name showing in "ps" or "top"
         Process.setArgV0("com.android.commands.monkey");
@@ -688,13 +688,13 @@ public class Monkey {
 
         // set seed
         if (mSeed == 0) {
+            //确保每次运行时生成不同的随机序列。
             mSeed = System.currentTimeMillis() + System.identityHashCode(this);
         }
 
         // print important parameters
         if (mVerbose > 0) {
             Logger.println("// Monkey: seed=" + mSeed + " count=" + mCount + "\n\n");
-
             MonkeyUtils.getPackageFilter().dump();
             MonkeyUtils.getActivityFilter().dump();
             if (mMainCategories.size() != 0) {

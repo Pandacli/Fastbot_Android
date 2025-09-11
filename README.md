@@ -65,7 +65,8 @@ sdkmanager "ndk;25.2.9519653"
 After that, enter the following command: 
 ```shell
 ./gradlew clean makeJar
-~/Library/Android/sdk/build-tools/28.0.3/dx --dex --output=monkeyq.jar monkey/build/libs/monkey.jar
+#dx工具将 java 字节码 转为换dalvik字节码
+~/Library/Android/sdk/build-tools/28.0.3/dx --dex --output=monkeyq.jar monkey/build/libs/monkeyq.jar
 ```
 
 After the compilation process is over, you can see the monkeyq.jar file in the root directory. This file is the final compiled Fastbot java package.
@@ -90,7 +91,7 @@ After the compilation process, you can see the .so file in the libs directory. T
   ```shell
   adb push monkey/build/libs/monkeyq.jar /sdcard/monkeyq.jar
   adb push fastbot-thirdpart.jar /sdcard/fastbot-thirdpart.jar
-  adb push libs/* /data/local/tmp/
+  adb push libs/* /sdcard/
   adb push framework.jar /sdcard/framework.jar
   ```
 

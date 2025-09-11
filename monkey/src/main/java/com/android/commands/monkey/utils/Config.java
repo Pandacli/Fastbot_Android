@@ -31,7 +31,7 @@ public class Config {
 
     static {
         configurations = new Properties(System.getProperties());
-        loadConfiguration("/data/local/tmp/max.config");
+        loadConfiguration("/sdcard/max.config");
         loadConfiguration("/sdcard/max.config");
     }
 

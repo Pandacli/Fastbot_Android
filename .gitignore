@@ -1,0 +1,6 @@
+.gradle
+.idea
+/build
+/monkey/build
+/monkey/.cxx
+.iml

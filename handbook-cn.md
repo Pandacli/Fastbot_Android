@@ -77,7 +77,9 @@ sdkmanager "ndk;25.2.9519653"
 之后，输入如下的命令： 
 ```shell
 ./gradlew clean makeJar
-~/Library/Android/sdk/build-tools/28.0.3/dx --dex --output=monkeyq.jar monkey/build/libs/monkey.jar
+~/Library/Android/sdk/build-tools/28.0.3/dx --dex --output=monkeyq.jar G:\android source\Fastbot_Android\monkey\build\libs\monkey.jar
+#windows
+dx --dex --output="G:\android source\Fastbot_Android\monkey\build\libs\monkeyq.jar" "G:\android source\Fastbot_Android\monkey\build\libs\monkey.jar"
 ```
 待编译流程结束后，可以在根目录中看到 monkeyq.jar 文件。此文件即为最终编译好的 Fastbot java 包。
 
@@ -91,10 +93,12 @@ sh ./build_native.sh
 ## 本地接入
 ### 环境预备
 * 支持 Android 5，6，7，8，9，10，11，12，13，14 真机及模拟器
-* 将 `framework.jar fastbot-thirdpart.jar monkeyq.jar` push 到手机上某个目录中，建议/sdcard，push `libs/* ` 到 `/data/local/tmp/`
+* 将 `framework.jar fastbot-thirdpart.jar monkeyq.jar` push 到手机上某个目录中，建议/sdcard
+* 将 `libs` 目录中的 四种架构的 `libfastbot_native.so` push 到手机上某个目录中，建议/data/local/tmp ，因为Android 10 及以上版本为了安全，限制了原生库的加载路径，仅允许从应用私有目录（如 /data/data/包名/）、系统目录（如 /system/lib64/）或 /data/local/tmp/ 加载动态库，/sdcard/（外部存储）属于禁止路径，因此必须迁移库文件。
+
     ```shell
     adb push *.jar /sdcard
-    adb push libs/* /data/local/tmp/
+    adb push libs/* /data/local/tmp 
     ```
 
 
@@ -444,5 +448,5 @@ app 的权限弹窗处理，
 
 7. 报错 Error: `Could not load library` `dlopen failed! libfastbot_native.so`
 
-    答：需按照 Usage 所写，将项目下所有libs文件push到手机中  `adb push libs/* /data/local/tmp/` 
+    答：需按照 Usage 所写，将项目下所有libs文件push到手机中  `adb push libs/* /sdcard/` 
  

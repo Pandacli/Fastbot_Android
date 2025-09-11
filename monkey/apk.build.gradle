@@ -20,12 +20,12 @@
 //build apk with:
 //  ./gradlew assembleRelease
 //
-//please push the built apk to /data/local/tmp and name the apk as monkey.apk:
-//  adb push monkey/build/outputs/apk/release/monkey-release-unsigned.apk /data/local/tmp/monkey.apk
+//please push the built apk to /sdcard and name the apk as monkey.apk:
+//  adb push monkey/build/outputs/apk/release/monkey-release-unsigned.apk /sdcard/monkey.apk
 //
 //run with:
 //
-//  adb shell CLASSPATH=/data/local/tmp/monkey.apk exec app_process /system/bin com.android.commands.monkey.Monkey -p package_name --agent reuseq --running-minutes duration(min) --throttle delay(ms) -v -v
+//  adb shell CLASSPATH=/sdcard/monkey.apk exec app_process /system/bin com.android.commands.monkey.Monkey -p package_name --agent reuseq --running-minutes duration(min) --throttle delay(ms) -v -v
 
 apply plugin: 'com.android.application'
 
