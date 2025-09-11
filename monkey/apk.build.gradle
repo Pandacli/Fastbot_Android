@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * @author Yuhui Su 
+ * @author Yuhui Su
  */
+
 //if you want to package this project as an apk, use this script instead of the current build.gradle
 //build apk with:
 //  ./gradlew assembleRelease
@@ -27,23 +29,46 @@
 //
 //  adb shell CLASSPATH=/sdcard/monkey.apk exec app_process /system/bin com.android.commands.monkey.Monkey -p package_name --agent reuseq --running-minutes duration(min) --throttle delay(ms) -v -v
 
+/**
+ * 应用Android应用程序插件，用于构建Android APK
+ */
 apply plugin: 'com.android.application'
 
+/**
+ * Android构建配置块
+ * 配置编译SDK版本、默认配置、构建类型、代码检查选项等
+ */
 android {
-    compileSdkVersion 32
+    /**
+     * 指定编译SDK版本为34
+     */
+    compileSdkVersion 34
 
+    /**
+     * 默认配置块
+     * 设置最小SDK版本、目标SDK版本、版本号、版本名等基础配置
+     */
     defaultConfig {
         minSdkVersion 22
-        targetSdkVersion 32
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+
+        /**
+         * NDK配置块
+         * 指定支持的ABI架构过滤器
+         */
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
     }
 
+    /**
+     * 构建类型配置块
+     * 定义debug和release两种构建类型的配置
+     */
     buildTypes {
         debug{
             debuggable true
@@ -53,15 +78,27 @@ android {
         }
     }
 
+    /**
+     * Lint选项配置块
+     * 配置代码检查相关选项
+     */
     lintOptions {
         abortOnError false
     }
 
+    /**
+     * 编译选项配置块
+     * 设置Java源码和目标字节码的兼容性版本
+     */
     compileOptions {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
 
+    /**
+     * 外部原生构建配置块
+     * 配置CMake构建系统的路径和版本
+     */
     externalNativeBuild {
         cmake {
             path("../native/CMakeLists.txt")
@@ -69,35 +106,77 @@ android {
         }
     }
 
+    /**
+     * 打包选项配置块
+     * 配置JNI库的打包选项
+     */
     packagingOptions {
         jniLibs {
             useLegacyPackaging false
         }
     }
+
+    /**
+     * 指定NDK版本
+     */
     ndkVersion '25.2.9519653'
 
 }
 
+/**
+ * 仓库配置块
+ * 配置项目依赖的Maven仓库地址
+ */
 repositories {
     maven {
         url "https://dl.google.com/dl/android/maven2/"
     }
 }
 
-
+/**
+ * 依赖配置块
+ * 声明项目的编译依赖项
+ */
 dependencies {
     compileOnly files('libs/framework.jar')
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.vdurmont:emoji-java:5.0.0'
 }
 
+/**
+ * Gradle项目评估完成后的回调配置
+ * 用于配置Java编译任务的引导类路径
+ *
+ * @param closure 配置闭包，用于修改编译选项
+ */
 gradle.projectsEvaluated {
+    /**
+     * 获取所有Java编译任务并进行配置
+     *
+     * @param type 任务类型，这里指定为JavaCompile
+     */
     tasks.withType(JavaCompile).tap {
+        /**
+         * 配置每个Java编译任务
+         *
+         * @param closure 配置闭包，用于设置引导类路径
+         */
         configureEach {
+            /**
+             * 获取当前引导类路径文件集合
+             */
             Set<File> fileSet = options.bootstrapClasspath.getFiles()
+
+            /**
+             * 创建新的文件列表，将framework.jar添加到引导类路径开头
+             */
             List<File> newFileList = new ArrayList<File>()
             newFileList.add(new File("libs/framework.jar"))
             newFileList.addAll(fileSet)
+
+            /**
+             * 重新设置引导类路径
+             */
             options.bootstrapClasspath = files(newFileList.toArray())
         }
     }
