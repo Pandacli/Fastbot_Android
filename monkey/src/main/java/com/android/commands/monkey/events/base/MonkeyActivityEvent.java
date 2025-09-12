@@ -84,7 +84,9 @@ public class MonkeyActivityEvent extends MonkeyEvent {
             args.putLong("alarmTime", mAlarmTime);
             intent.putExtras(args);
         }
-        AndroidDevice.startActivity(intent);
+        String activityName =(intent.getComponent()!=null)?intent.getComponent().getClassName():"Unknown";
+        int result = AndroidDevice.startActivity(intent);
+        Logger.println("启动设备Activity（1代表成功，0代表失败）："+result+",Activity name:"+activityName);
         return MonkeyEvent.INJECT_SUCCESS;
     }
 }

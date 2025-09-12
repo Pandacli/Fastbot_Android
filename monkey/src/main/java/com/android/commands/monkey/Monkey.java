@@ -35,6 +35,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.IWindowManager;
 import android.view.Surface;
 
@@ -460,7 +461,7 @@ public class Monkey {
             int resultCode = (new Monkey()).run(args, version);
             System.exit(resultCode);
         } catch (Throwable e) {
-            Logger.println("Internal error");
+            Logger.println("Internal error"+e.getMessage());
             e.printStackTrace();
             Logger.println("Please report this bug issue to github");
             System.exit(1);
@@ -990,10 +991,12 @@ public class Monkey {
                         break;
                     case "--running-minutes":
                         mRunningMillis = nextOptionLong("Running Minutes") * ONE_MINUTE_IN_MILLISECOND;
+                        Logger.println("monkeyq 运行时长"+mRunningMillis);
                         break;
                     case "--pct-touch": {
                         int i = MonkeySourceRandom.FACTOR_TOUCH;
                         mFactors[i] = -nextOptionLong("touch events percentage");
+
                         break;
                     }
                     case "--pct-motion": {
@@ -1001,11 +1004,12 @@ public class Monkey {
                         mFactors[i] = -nextOptionLong("motion events percentage");
                         break;
                     }
-                    case "--pct-trackball": {
-                        int i = MonkeySourceRandom.FACTOR_TRACKBALL;
-                        mFactors[i] = -nextOptionLong("trackball events percentage");
-                        break;
-                    }
+                    //指定轨迹球事件的占比（基本淘汰的参数）
+//                    case "--pct-trackball": {
+//                        int i = MonkeySourceRandom.FACTOR_TRACKBALL;
+//                        mFactors[i] = -nextOptionLong("trackball events percentage");
+//                        break;
+//                    }
                     case "--pct-rotation": {
                         int i = MonkeySourceRandom.FACTOR_ROTATION;
                         mFactors[i] = -nextOptionLong("screen rotation events percentage");
@@ -1016,26 +1020,26 @@ public class Monkey {
                         mFactors[i] = -nextOptionLong("system (key) operations percentage");
                         break;
                     }
-                    case "--pct-nav": {
-                        int i = MonkeySourceRandom.FACTOR_NAV;
-                        mFactors[i] = -nextOptionLong("nav events percentage");
-                        break;
-                    }
-                    case "--pct-majornav": {
-                        int i = MonkeySourceRandom.FACTOR_MAJORNAV;
-                        mFactors[i] = -nextOptionLong("major nav events percentage");
-                        break;
-                    }
+//                    case "--pct-nav": {
+//                        int i = MonkeySourceRandom.FACTOR_NAV;
+//                        mFactors[i] = -nextOptionLong("nav events percentage");
+//                        break;
+//                    }
+//                    case "--pct-majornav": {
+//                        int i = MonkeySourceRandom.FACTOR_MAJORNAV;
+//                        mFactors[i] = -nextOptionLong("major nav events percentage");
+//                        break;
+//                    }
                     case "--pct-appswitch": {
                         int i = MonkeySourceRandom.FACTOR_APPSWITCH;
                         mFactors[i] = -nextOptionLong("app switch events percentage");
                         break;
                     }
-                    case "--pct-flip": {
-                        int i = MonkeySourceRandom.FACTOR_FLIP;
-                        mFactors[i] = -nextOptionLong("keyboard flip percentage");
-                        break;
-                    }
+//                    case "--pct-flip": {
+//                        int i = MonkeySourceRandom.FACTOR_FLIP;
+//                        mFactors[i] = -nextOptionLong("keyboard flip percentage");
+//                        break;
+//                    }
                     case "--pct-anyevent": {
                         int i = MonkeySourceRandom.FACTOR_ANYTHING;
                         mFactors[i] = -nextOptionLong("any events percentage");
@@ -1053,15 +1057,19 @@ public class Monkey {
                     }
                     case "--pkg-blacklist-file":
                         mPkgBlacklistFile = nextOptionData();
+                        Logger.println("Package黑名单配置："+mPkgBlacklistFile);
                         break;
                     case "--pkg-whitelist-file":
                         mPkgWhitelistFile = nextOptionData();
+                        Logger.println("Package白名单配置："+mPkgWhitelistFile);
                         break;
                     case "--act-blacklist-file":
                         mActBlacklistFile = nextOptionData();
+                        Logger.println("Activity黑名单配置:"+mActBlacklistFile);
                         break;
                     case "--act-whitelist-file":
                         mActWhitelistFile = nextOptionData();
+                        Logger.println("Activity白名单配置："+mActWhitelistFile);
                         break;
                     case "--throttle":
                         mThrottle = nextOptionLong("delay (in milliseconds) to wait between events");
@@ -1299,23 +1307,26 @@ public class Monkey {
         }
         PackageManager packageManager = systemContext.getPackageManager();
         if (mMainIntentAction != null && mMainIntentData != null) {
+            // 创建主界面Intent并查询可处理该Intent的Activity
             Intent intent = new Intent(mMainIntentAction);
             Uri uri = Uri.parse(mMainIntentData);
             intent.setData(uri);
             List<ResolveInfo> mainApps = APIAdapter.queryIntentActivities(packageManager, intent);
-
+            // 遍历所有查询到的主Activity，根据包过滤器筛选并添加到主应用列表中
             final int NA = mainApps.size();
             for (int a = 0; a < NA; a++) {
                 ResolveInfo r = mainApps.get(a);
                 String packageName = r.activityInfo.applicationInfo.packageName;
-
+                // 检查包是否符合过滤条件
                 if (MonkeyUtils.getPackageFilter().checkEnteringPackage(packageName)) {
+                    // 符合条件的包，添加到主应用列表
                     if (mVerbose >= 2) { // very verbose
                         Logger.println("//   + Using main activity " + r.activityInfo.name + " (from package "
                                 + packageName + ")");
                     }
                     mMainApps.add(new ComponentName(packageName, r.activityInfo.name));
                 } else {
+                    // 不符合条件的包，跳过
                     if (mVerbose >= 2) { // very very verbose
                         Logger.println("//   - NOT USING main activity " + r.activityInfo.name
                                 + " (from package " + packageName + ")");
@@ -1985,8 +1996,10 @@ public class Monkey {
 
         public boolean appCrashed(String processName, int pid, String shortMsg, String longMsg, long timeMillis,
                                   String stackTrace) {
-            if (!AndroidDevice.isAppCrash(processName, mMainApps)) {
-                Logger.println("// crash processName: " + processName + ", is not testing app");
+            //崩溃监测：分析崩溃进程的包名，与当前测试应用列表进行比对
+            boolean appCrash = AndroidDevice.isAppCrash(processName, mMainApps);
+            if (!appCrash) {
+                Logger.println("// crash processName: " + processName + ", is not in testing apps   arrayList");
                 return false;
             }
 

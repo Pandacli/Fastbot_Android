@@ -39,7 +39,7 @@ public class Config {
     /**
      * fastbot version
      */
-    public static final String fastbotversion = "2.3.23.0810.1705-git";
+    public static final String fastbotversion = "xinghe_monkey_v1.0.0";
     /**
      * enable debug log, disable by default
      */

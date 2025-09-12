@@ -5,6 +5,7 @@
 package com.android.commands.monkey.source;
 
 import static com.android.commands.monkey.fastbot.client.ActionType.SCROLL_BOTTOM_UP;
+import static com.android.commands.monkey.fastbot.client.ActionType.SCROLL_LEFT_RIGHT;
 import static com.android.commands.monkey.fastbot.client.ActionType.SCROLL_TOP_DOWN;
 import static com.android.commands.monkey.framework.AndroidDevice.stopPackage;
 import static com.android.commands.monkey.utils.Config.bytestStatusBarHeight;
@@ -52,6 +53,7 @@ import android.os.Build;
 import android.os.HandlerThread;
 
 import java.lang.Exception;
+
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -259,6 +261,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     /**
      * In mathematics, linear interpolation is a method of curve fitting using linear polynomials
      * to construct new data points within the range of a discrete set of known data points.
+     *
      * @param a
      * @param b
      * @param alpha
@@ -373,7 +376,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
         event.setEventId(mEventId++);
     }
 
-    private final void addEvents(List<MonkeyEvent> events){
+    private final void addEvents(List<MonkeyEvent> events) {
         for (int i = 0; i < events.size(); i++) {
             addEvent(events.get(i));
         }
@@ -435,6 +438,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Get the top Activity info from the Activity stack
+     *
      * @return Component name of the top activity
      */
     private ComponentName getTopActivityComponentName() {
@@ -444,6 +448,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     /**
      * If the given component is not allowed to interact with, start a random app or
      * generating a fuzzing action
+     *
      * @param cn Component that is not allowed to interact with
      */
     private void dealWithBlockedActivity(ComponentName cn) {
@@ -469,6 +474,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     /**
      * If this activity could be interacted with. Should be in white list or not in blacklist or
      * not specified.
+     *
      * @param cn Component Name of this activity
      * @return If could be interacted, return true
      */
@@ -495,13 +501,14 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                 Logger.println("// current activity is " + this.currentActivity);
                 timestamp++;
             }
-        }else
+        } else
             dealWithBlockedActivity(cn);
     }
 
     /**
      * Calling this method, you could delete the user data and revoke granted permission of
      * this specific package.
+     *
      * @param packageName The package name of which data to delete.
      */
     public void clearPackage(String packageName) {
@@ -510,14 +517,15 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
             Logger.warningPrintln("Stop clearing untracked package: " + packageName);
             return;
         }
-        if(AndroidDevice.clearPackage(packageName, permissions))
-            Logger.infoPrintln("Package "+packageName+" cleared.");
+        if (AndroidDevice.clearPackage(packageName, permissions))
+            Logger.infoPrintln("Package " + packageName + " cleared.");
     }
 
     /**
      * Generate events for activity
-     * @param app The info about this activity.
-     * @param clearPackage If should delete the user data and revoke granted permissions
+     *
+     * @param app              The info about this activity.
+     * @param clearPackage     If should delete the user data and revoke granted permissions
      * @param startFromHistory If need to start activity form history stack
      */
     protected void generateActivityEvents(ComponentName app, boolean clearPackage, boolean startFromHistory) {
@@ -565,9 +573,10 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Restart the specific package
-     * @param cn Component Name of the specific app activity
+     *
+     * @param cn           Component Name of the specific app activity
      * @param clearPackage If should clear user data and permissions or not
-     * @param reason String reason to restart package
+     * @param reason       String reason to restart package
      */
     protected void restartPackage(ComponentName cn, boolean clearPackage, String reason) {
         if (doHoming && RandomHelper.toss(homingRate)) {
@@ -583,6 +592,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Pick an activity that we can interact with.
+     *
      * @return Chosen activity component name
      */
     public ComponentName randomlyPickMainApp() {
@@ -596,15 +606,20 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     }
 
     protected void generateThrottleEvent(long base) {
+        // 计算节流时间值，如果启用了随机化则生成随机节流时间
         long throttle = base;
+        // 当启用随机节流且基础值大于0时，生成随机节流时间
         if (mRandomizeThrottle && (throttle > 0)) {
             throttle = mRandom.nextLong();
+            // 确保随机数为正数
             if (throttle < 0) {
                 throttle = -throttle;
             }
+            // 将随机数对基础值取模并加1，确保结果在合理范围内
             throttle %= base;
             ++throttle;
         }
+        // 最后确保节流时间为正数
         if (throttle < 0) {
             throttle = -throttle;
         }
@@ -680,8 +695,9 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Generate click event at the given rectangle area
-     * @param nodeRect the given rectangle area to click
-     * @param waitTime after performing click, the time to wait for
+     *
+     * @param nodeRect       the given rectangle area to click
+     * @param waitTime       after performing click, the time to wait for
      * @param useRandomClick if should perform click randomly in rectangle area
      */
     protected void generateClickEventAt(Rect nodeRect, long waitTime, boolean useRandomClick) {
@@ -697,7 +713,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
             int height = bounds.height() > 0 ? getRandom().nextInt(bounds.height()) : 0;
             p1 = new PointF(bounds.left + width, bounds.top + height);
         } else
-            p1 = new PointF(bounds.left + bounds.width()/2.0f, bounds.top + bounds.height()/2.0f);
+            p1 = new PointF(bounds.left + bounds.width() / 2.0f, bounds.top + bounds.height() / 2.0f);
         if (!bounds.contains((int) p1.x, (int) p1.y)) {
             Logger.warningFormat("Invalid bounds: %s", bounds);
             return;
@@ -771,6 +787,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     /**
      * According to the returned action from native model, parse the text inside, and
      * input those texts if IME is activated.
+     *
      * @param action returned action from native model
      */
     private void doInput(ModelAction action) {
@@ -825,27 +842,31 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * If current window belongs to the system UI, randomly pick an allowed app to start
+     *
      * @param info AccessibilityNodeInfo of the root of this current window
      * @return If this window belongs to system UI, return true
      */
-    public boolean dealWithSystemUI(AccessibilityNodeInfo info)
-    {
-        if(info == null || info.getPackageName() == null)
-        {
+    public boolean dealWithSystemUI(AccessibilityNodeInfo info) {
+        if (info == null || info.getPackageName() == null) {
             Logger.println("get null accessibility node");
             return false;
         }
         String packageName = info.getPackageName().toString();
-        if(packageName.equals("com.android.systemui")) {
-
+        // 判断是否为系统UI界面（通知栏或其他系统窗口）
+        if (packageName.equals("com.android.systemui")) {
             Logger.println("get notification window or other system windows");
             Rect bounds = AndroidDevice.getDisplayBounds();
-            // press home
+            // press home执行home键操作
             generateKeyEvent(KeyEvent.KEYCODE_HOME);
-            //scroll up
+            //scroll up 执行向上滑动操作
             generateScrollEventAt(bounds, SCROLL_BOTTOM_UP);
-            // launch app
+            //scroll up 执行向下滑动操作
+            generateScrollEventAt(bounds, SCROLL_TOP_DOWN);
+            //执行左右滑动操作
+            generateScrollEventAt(bounds, SCROLL_LEFT_RIGHT);
+            // 启动随机选择的主应用
             generateActivityEvents(randomlyPickMainApp(), false, false);
+            //控制事件执行频率，通过在事件序列中插入延迟1000ms来控制Monkey测试事件的执行速度
             generateThrottleEvent(1000);
             return true;
         }
@@ -854,22 +875,39 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
 
     /**
-     * generate a random event based on mFactor
+     * 执行一次完整的事件处理流程，包括获取当前界面信息、调用AI模型决策动作、执行动作并记录日志。
+     * <p>
+     * 主要流程如下：
+     * 1. 检查是否有待处理事件，若有则直接返回；
+     * 2. 重置屏幕旋转状态；
+     * 3. 尝试快速获取当前界面的AccessibilityNodeInfo节点信息；
+     * 4. 若快速获取失败，则尝试慢速方式获取一次；
+     * 5. 构建GUI树字符串表示；
+     * 6. 调用AI客户端获取下一步操作；
+     * 7. 根据操作类型生成并执行对应事件；
+     * 8. 可选保存GUI树XML和截图；
+     * 9. 根据执行结果判断是否需要进行模糊测试；
+     * 10. 若允许模糊测试且满足条件，则执行模糊动作。
+     * <p>
+     * 注意事项：
+     * - 此函数不接受参数，依赖类成员变量进行配置和状态管理；
+     * - 不返回任何值，所有操作通过副作用完成。
      */
     protected void generateEvents() {
         long start = System.currentTimeMillis();
         if (hasEvent()) {
             return;
         }
+        //车机OS 不需要重置屏幕旋转
+        //resetRotation();
 
-        resetRotation();
         ComponentName topActivityName = null;
         String stringOfGuiTree = "";
         Action fuzzingAction = null;
         AccessibilityNodeInfo info = null;
         int repeat = refectchInfoCount;
 
-        // try to get AccessibilityNodeInfo quickly for several times.
+        // 尝试快速多次获取 AccessibilityNodeInfo 和顶层 Activity 名称
         while (repeat-- > 0) {
             topActivityName = this.getTopActivityComponentName();
             info = getRootInActiveWindow();
@@ -878,49 +916,48 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                 sleep(refectchInfoWaitingInterval);
                 continue;
             }
-
             Logger.println("// Event id: " + mEventId);
-            if(dealWithSystemUI(info))
+            //处理系统 UI 相关事件
+            if (dealWithSystemUI(info))
                 return;
             break;
         }
 
-        // If node is null, try to get AccessibilityNodeInfo slow for only once
+        // 如果仍未获取到节点信息，尝试使用较慢的方式获取一次
         if (info == null) {
             topActivityName = this.getTopActivityComponentName();
             info = getRootInActiveWindowSlow();
             if (info != null) {
                 Logger.println("// Event id: " + mEventId);
-                if(dealWithSystemUI(info))
+                if (dealWithSystemUI(info))
                     return;
             }
         }
 
-        // If node is not null, build tree and recycle this resource.
-        if (info!=null){
+        // 如果成功获取节点信息，构建 GUI 树并释放资源
+        if (info != null) {
             stringOfGuiTree = TreeBuilder.dumpDocumentStrWithOutTree(info);
             if (mVerbose > 3) Logger.println("//" + stringOfGuiTree);
             info.recycle();
         }
 
-        // For user specified actions, during executing, fuzzing is not allowed.
+        // 控制是否允许进行模糊测试，默认为允许
         boolean allowFuzzing = true;
-
+        //如果获取到了顶层 Activity 和 GUI 树信息
         if (topActivityName != null && !"".equals(stringOfGuiTree)) {
             try {
                 long rpc_start = System.currentTimeMillis();
-
+                // 调用 AI 客户端获取操作建议
                 Operate operate = AiClient.getAction(topActivityName.getClassName(), stringOfGuiTree);
+                Logger.println("AI-Client 的操作建议：" + operate.toJson());
                 operate.throttle += (int) this.mThrottle;
                 // For user specified actions, during executing, fuzzing is not allowed.
                 allowFuzzing = operate.allowFuzzing;
                 ActionType type = operate.act;
-                Logger.println("action type: " + type.toString());
-                Logger.println("rpc cost time: " + (System.currentTimeMillis() - rpc_start));
-
+                Logger.println("操作类型：" + type.toString());
                 Rect rect = new Rect(0, 0, 0, 0);
                 List<PointF> pointFloats = new ArrayList<>();
-
+                // 如果操作需要目标位置，则解析坐标信息
                 if (type.requireTarget()) {
                     List<Short> points = operate.pos;
                     if (points != null && points.size() >= 4) {
@@ -929,12 +966,11 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                         type = ActionType.NOP;
                     }
                 }
-
                 timeStep++;
                 String sid = operate.sid;
                 String aid = operate.aid;
                 long timeMillis = System.currentTimeMillis();
-
+                // 如果启用了 GUI 树保存功能，则将当前 GUI 树写入 XML 文件
                 if (saveGUITreeToXmlEveryStep) {
                     checkOutputDir();
                     File xmlFile = new File(checkOutputDir(), String.format(stringFormatLocale,
@@ -952,7 +988,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                     } catch (java.io.IOException e) {
                     }
                 }
-
+                // 如果启用了截图功能，则保存当前屏幕截图
                 if (takeScreenshotForEveryStep) {
                     checkOutputDir();
                     File screenshotFile = new File(checkOutputDir(), String.format(stringFormatLocale,
@@ -961,11 +997,10 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                             screenshotFile, timeStep, sid, aid);
                     takeScreenshot(screenshotFile);
                 }
-
+                // 构造模型动作对象
                 ModelAction modelAction = new ModelAction(type, topActivityName, pointFloats, rect);
                 modelAction.setThrottle(operate.throttle);
-
-                // Complete the info for specific action type
+                // 根据不同的操作类型设置额外参数
                 switch (type) {
                     case CLICK:
                         modelAction.setInputText(operate.text);
@@ -984,10 +1019,9 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                     default:
                         break;
                 }
-
+                // 执行生成的动作
                 generateEventsForAction(modelAction);
-
-                // check if could select next fuzz action from full fuzz-able action options.
+                // 判断是否需要进入全模糊模式
                 switch (type) {
                     case RESTART:
                     case CLEAN_RESTART:
@@ -1004,24 +1038,25 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
             } catch (Exception e) {
                 e.printStackTrace();
+                // 出现异常时执行默认的节流事件
                 generateThrottleEvent(mThrottle);
             }
         } else {
+            // 如果无法获取到顶层 Activity 或 GUI 树信息，则进行模糊测试
             Logger.println(
                     "// top activity is null or the corresponding tree is null, " +
-                    "accessibility maybe error, fuzz needed."
+                            "accessibility maybe error, fuzz needed."
             );
             fuzzingAction = generateFuzzingAction(fullFuzzing);
             generateEventsForAction(fuzzingAction);
         }
-
+        // 如果允许模糊测试且尚未生成模糊动作，并且随机命中模糊率，则生成并执行模糊动作
         if (allowFuzzing && fuzzingAction == null && RandomHelper.toss(fuzzingRate)) {
             Logger.println("// generate fuzzing action.");
             fuzzingAction = generateFuzzingAction(fullFuzzing);
             generateEventsForAction(fuzzingAction);
         }
-
-        Logger.println(" event time:" + Long.toString(System.currentTimeMillis() - start));
+        Logger.println("Events生成总时长:" + Long.toString(System.currentTimeMillis() - start));
     }
 
     private File checkOutputDir() {
@@ -1044,6 +1079,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     /**
      * According to the action type of the action argument, generate its corresponding
      * event, and set throttle if necessary.
+     *
      * @param action generated action, could be action from native model, or generated fuzzing
      *               action from CustomEventFuzzer
      */
@@ -1057,8 +1093,9 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     /**
      * Return a generated fuzzing action, which could be from complete fuzzing list or simplified
      * fuzzing list
+     *
      * @param sampleFromAllFuzzingActions if should select fuzzing action from all possible
-     *                                   fuzzing options
+     *                                    fuzzing options
      * @return A wrapped action object, containing the generated fuzzing actions.
      */
     private FuzzAction generateFuzzingAction(boolean sampleFromAllFuzzingActions) {
@@ -1071,6 +1108,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
     /**
      * According to the action type of the action argument, generate its corresponding
      * event
+     *
      * @param action generated action, could be action from native model, or generated fuzzing
      *               action from CustomEventFuzzer
      */
@@ -1123,7 +1161,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                 }
                 break;
             case SHELL_EVENT:
-                ModelAction modelAction = (ModelAction)action;
+                ModelAction modelAction = (ModelAction) action;
                 ShellEvent shellEvent = new ShellEvent(modelAction.getShellCommand(), modelAction.getWaitTime());
                 List<MonkeyEvent> monkeyEvents = shellEvent.generateMonkeyEvents();
                 addEvents(monkeyEvents);
@@ -1135,6 +1173,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Generate monkey events according to CustomEvents inside FuzzAction
+     *
      * @param action Object of FuzzAction, containing all corresponding CustomEvents
      */
     private void generateFuzzingEvents(FuzzAction action) {
@@ -1164,7 +1203,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
                 if (packageInfo != null) {
                     if (packageInfo.packageName.equals("com.android.packageinstaller"))
                         continue;
-                    if(packageInfo.activities != null){
+                    if (packageInfo.activities != null) {
                         for (ActivityInfo activityInfo : packageInfo.activities) {
                             mTotalActivities.add(activityInfo.name);
                         }
@@ -1201,7 +1240,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
         int i = 0;
         for (String activity : set) {
             i++;
-            Logger.println(String.format(Locale.ENGLISH,"%4d %s", i, activity));
+            Logger.println(String.format(Locale.ENGLISH, "%4d %s", i, activity));
         }
 
         String[] testedActivities = this.activityHistory.toArray(new String[0]);
@@ -1212,7 +1251,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
         for (i = 0; i < testedActivities.length; i++) {
             activity = testedActivities[i];
             if (set.contains(activity)) {
-                Logger.println(String.format(Locale.ENGLISH,"%4d %s", j + 1, activity));
+                Logger.println(String.format(Locale.ENGLISH, "%4d %s", j + 1, activity));
                 j++;
             }
         }
@@ -1231,8 +1270,9 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Grant permission to testing app
+     *
      * @param packageName package name of the testing app
-     * @param reason the reason to grant permission
+     * @param reason      the reason to grant permission
      */
     public void grantRuntimePermissions(String packageName, String reason) {
         String[] permissions = this.packagePermissions.get(packageName);
@@ -1245,6 +1285,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Grant permission to all testing app
+     *
      * @param reason the reason to grant permission
      */
     public void grantRuntimePermissions(String reason) {
@@ -1255,8 +1296,9 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Generate mutation event and execute it
-     * @param iwm IWindowManager instance
-     * @param iam IActivityManager instance
+     *
+     * @param iwm     IWindowManager instance
+     * @param iam     IActivityManager instance
      * @param verbose verbose
      */
     public void startMutation(IWindowManager iwm, IActivityManager iam, int verbose) {
@@ -1269,7 +1311,7 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
         } else if (rate < Config.doMutationMutationAlwaysFinishActivitysFuzzing
                 + Config.doMutationWifiFuzzing) {
             event = new MutationWifiEvent();
-        } else if (rate < total){
+        } else if (rate < total) {
             event = new MutationAirplaneEvent();
         }
         if (event != null) {
@@ -1330,12 +1372,13 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
 
     /**
      * Set attribute for start user specified intent
-     * @param packageName name of package
-     * @param appVersion version of app
-     * @param intentAction user specified intent
-     * @param intentData user specified intent data
+     *
+     * @param packageName   name of package
+     * @param appVersion    version of app
+     * @param intentAction  user specified intent
+     * @param intentData    user specified intent data
      * @param quickActivity user specified activity, not used
-     *                      TODO:considering to remove
+     *                                                                TODO:considering to remove
      */
     public void setAttribute(String packageName, String appVersion, String intentAction, String intentData, String quickActivity) {
         this.packageName = packageName;

@@ -77,8 +77,9 @@ sdkmanager "ndk;25.2.9519653"
 之后，输入如下的命令： 
 ```shell
 ./gradlew clean makeJar
+#linux or macos
 ~/Library/Android/sdk/build-tools/28.0.3/dx --dex --output=monkeyq.jar G:\android source\Fastbot_Android\monkey\build\libs\monkey.jar
-#windows
+#windows  cd 到  androidSDK/build-tools/28.0.3/  执行cmd命令
 dx --dex --output="G:\android source\Fastbot_Android\monkey\build\libs\monkeyq.jar" "G:\android source\Fastbot_Android\monkey\build\libs\monkey.jar"
 ```
 待编译流程结束后，可以在根目录中看到 monkeyq.jar 文件。此文件即为最终编译好的 Fastbot java 包。

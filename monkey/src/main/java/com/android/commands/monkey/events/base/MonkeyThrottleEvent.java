@@ -33,11 +33,17 @@ public class MonkeyThrottleEvent extends MonkeyEvent {
         mThrottle = throttle;
     }
 
+    /**
+     * 注入monkey事件的方法
+     *
+     * @return MonkeyEvent.INJECT_SUCCESS 当事件成功注入时返回
+     * @return MonkeyEvent.INJECT_FAIL 当线程在睡眠过程中被中断时返回
+     */
     @Override
     public int injectEvent(IWindowManager iwm, IActivityManager iam, int verbose) {
-
+        long sleep = mThrottle / 1000;
         if (verbose > 1 && mThrottle > 0) {
-            Logger.println("Sleeping for " + mThrottle + " milliseconds");
+            Logger.println("点击频率 参数： " + mThrottle + "，将执行休眠" + sleep + "秒");
         }
         try {
             Thread.sleep(mThrottle);

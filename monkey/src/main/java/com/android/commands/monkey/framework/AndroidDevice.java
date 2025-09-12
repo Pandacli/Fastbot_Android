@@ -139,6 +139,7 @@ public class AndroidDevice {
 
     /**
      * Try to get all enabled keyboards, and find ADBKeyboard
+     *
      * @return If ADBKeyboard IME exists and enabled, return true, false otherwise.
      */
     private static boolean enableADBKeyboard() {
@@ -196,7 +197,7 @@ public class AndroidDevice {
                     "-c",
                     "dumpsys input_method | grep mInputShown"
             };
-            Process process =  Runtime.getRuntime().exec(cmd);
+            Process process = Runtime.getRuntime().exec(cmd);
             BufferedReader stdInput = new BufferedReader(new
                     InputStreamReader(process.getInputStream()));
             String s;
@@ -205,12 +206,12 @@ public class AndroidDevice {
                 Logger.println(s = s.toLowerCase(Locale.ENGLISH));
                 Matcher matcher = pattern.matcher(s);
                 boolean matchFound = matcher.find();
-                if(matchFound) {
+                if (matchFound) {
                     Logger.println("mInputShown found.");
                     return true;
                 }
             }
-        }catch (IOException ioException){
+        } catch (IOException ioException) {
             Logger.errorPrintln("adb executing \"dumpsys input_method | grep mInputShown\" wrong!");
         }
         Logger.println("mInputShown not found, getInputMethodWindowVisibleHeight is used.");
@@ -317,6 +318,7 @@ public class AndroidDevice {
     /**
      * Used for getting package size, but could only be used when API version is no more than 26,
      * otherwise it will throw exceptions.
+     *
      * @param packageName The name of package of which you want to check size
      * @return If the query is successful, return true.
      */
@@ -350,18 +352,28 @@ public class AndroidDevice {
             }
         } catch (RemoteException e) {
             e.printStackTrace();
-        } catch (java.lang.UnsupportedOperationException e){
+        } catch (java.lang.UnsupportedOperationException e) {
             Logger.errorPrintln("Operation of getting package size is not support above api 26.");
         }
         return false;
     }
 
+    /**
+     * 执行系统命令并等待其完成
+     * @param cmd 要执行的系统命令字符串
+     * @return 命令执行的退出状态码，0表示正常结束，非0表示异常结束
+     * @throws InterruptedException 如果等待过程中线程被中断
+     * @throws IOException 如果执行命令时发生I/O异常
+     */
     public static int executeCommandAndWaitFor(String[] cmd) throws InterruptedException, IOException {
-        return Runtime.getRuntime().exec(cmd).waitFor();
+        int resultCode = Runtime.getRuntime().exec(cmd).waitFor();
+        Logger.println("am 命令执行退出状态码：（0表示正常结束，非0代表异常结束）："+resultCode);
+        return resultCode;
     }
 
     /**
      * Get all the pid of running app
+     *
      * @param packageName Package name of the running app
      * @return List of pid-s
      */
@@ -385,8 +397,9 @@ public class AndroidDevice {
 
     /**
      * Check if a crashed app is among applications we can switch to.
+     *
      * @param processName name of the crashed app
-     * @param apps applications we are allowed to switch to
+     * @param apps        applications we are allowed to switch to
      * @return If this crashed app is among applications we can switch to, return true.
      */
     public static boolean isAppCrash(String processName, ArrayList<ComponentName> apps) {
@@ -426,6 +439,7 @@ public class AndroidDevice {
 
     /**
      * Clear android application user data
+     *
      * @param packageName The package name of which data to delete.
      * @return If succeed, return true.
      */
@@ -445,7 +459,8 @@ public class AndroidDevice {
     /**
      * Clear android application user data, if succeed and all requested permissions are
      * granted, revoke them.
-     * @param packageName The package name of which data to delete.
+     *
+     * @param packageName      The package name of which data to delete.
      * @param savedPermissions The package name of which permission to revoke.
      * @return If succeed, return true.
      */
@@ -484,7 +499,7 @@ public class AndroidDevice {
         return false;
     }
 
-    public static boolean isAtPhoneCapture(String topActivity){
+    public static boolean isAtPhoneCapture(String topActivity) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         List<ResolveInfo> homeApps = APIAdapter.queryIntentActivities(packageManager, intent);
         final int NA = homeApps.size();
@@ -493,7 +508,7 @@ public class AndroidDevice {
             String activity = r.activityInfo.name;
             Logger.println("// the top activity is " + topActivity + ", phone capture activity is " + activity);
 
-            if (topActivity.equals(activity)){
+            if (topActivity.equals(activity)) {
                 return true;
             }
         }
@@ -537,13 +552,22 @@ public class AndroidDevice {
         }
     }
 
+    /**
+     * 启动Activity 并处理启动失败的情况
+     *
+     * @param intent
+     * @return 1 启动成功 0 启动失败
+     */
     public static int startActivity(Intent intent) {
         try {
+            //// 尝试通过APIAdapter启动Activity
             Object object = APIAdapter.startActivity(iActivityManager, intent);
             if (object == null) {
+                // 如果APIAdapter启动失败，且intent和intent的组件不为空
                 if (null != intent && null != intent.getComponent()) {
                     Logger.println("IActivityManager.startActivity failed, execute am start activity");
                     String activity = intent.getComponent().flattenToShortString();
+                    //使用Activity Manager 命令行工具启动Activity
                     executeCommandAndWaitFor(new String[]{"am", "start", "-n", activity});
                 }
             }
@@ -606,6 +630,7 @@ public class AndroidDevice {
 
     /**
      * Get activity stack through dumpsys
+     *
      * @return StackInfo object containing current activity stack
      */
     public static StackInfo getFocusedStack() {

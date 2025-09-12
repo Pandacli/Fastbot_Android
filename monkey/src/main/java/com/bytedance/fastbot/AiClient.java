@@ -89,8 +89,7 @@ public class AiClient {
         try {
             path = getAiPathLocally();
             System.load(path);
-            Logger.println("fastbot native : library load!");
-            Logger.println("fastbot native path is : "+path);
+            Logger.println("fastbot native : library load!加载 +"+path+" 开始启动：");
         } catch (UnsatisfiedLinkError e) {
             Logger.errorPrintln("Error: Could not load library!");
             Logger.errorPrintln(path);
