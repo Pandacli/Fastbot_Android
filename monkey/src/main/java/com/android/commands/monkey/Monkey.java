@@ -695,7 +695,7 @@ public class Monkey {
 
         // print important parameters
         if (mVerbose > 0) {
-            Logger.println("// Monkey: seed=" + mSeed + " count=" + mCount + "\n\n");
+            //Logger.println("// Monkey: seed=" + mSeed + " count=" + mCount + "\n\n");
             MonkeyUtils.getPackageFilter().dump();
             MonkeyUtils.getActivityFilter().dump();
             if (mMainCategories.size() != 0) {

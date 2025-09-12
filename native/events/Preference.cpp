@@ -307,8 +307,7 @@ namespace fastbotx {
                         cachedRects.push_back(matchedElement->getBounds());
                         matchedElement->deleteElement();
                     }
-                }
-                else if (xpathExistsInPage || (!xpath && hasBoundingBox)) {
+                } else if (xpathExistsInPage || (!xpath && hasBoundingBox)) {
                     RectPtr rejectRect = std::make_shared<Rect>(bounds[0], bounds[1], bounds[2],
                                                                 bounds[3]);
                     cachedRects.push_back(rejectRect);
@@ -569,19 +568,34 @@ namespace fastbotx {
         LOGI("fastbot native use a listen mode: %d !!!", this->_skipAllActionsFromModel);
     }
 
+/**
+ * @brief 加载并解析指定路径下的动作配置文件，构建自定义事件及动作列表。
+ *
+ * 该函数读取一个 JSON 格式的配置文件，其中包含多个自定义事件（CustomEvent），
+ * 每个事件由若干个动作（CustomAction）组成。函数会依次解析每个事件及其动作，
+ * 并将结果存储到 [_customEvents](file://G:\android%20source\Fastbot_Android\native\events\Preference.h#L143-L143) 成员变量中。
+ *
+ * @note 若文件内容为空或解析失败，则不会加载任何事件，并记录错误日志。
+ * @note 使用了 nlohmann::json 库进行 JSON 解析。
+ * @note 每个动作支持多种属性，如 xpath、text、throttle 等。
+ */
     void Preference::loadActions() {
+        //加载文件路径
         std::string fileContent = loadFileContent(ActionConfigFilePath);
         if (fileContent.empty())
             return;
-        BLOG("loading actions  : %s", ActionConfigFilePath.c_str());
+        BLOG("加载自定义事件actions  : %s", ActionConfigFilePath.c_str());
         try {
+            // 解析整个动作事件的 JSON 数组
             ::nlohmann::json actionEvents = ::nlohmann::json::parse(fileContent);
+            // 遍历max.xpath.actions 数组 的每一个自定义事件
             for (const ::nlohmann::json &actionEvent: actionEvents) {
                 CustomEventPtr customEvent = std::make_shared<CustomEvent>();
+                // 提取事件的基本属性：概率、执行次数和活动名称
                 customEvent->prob = static_cast<float>(getJsonValue<float>(actionEvent, "prob", 1));
                 customEvent->times = getJsonValue<int>(actionEvent, "times", 1);
                 customEvent->activity = getJsonValue<std::string>(actionEvent, "activity", "");
-                BLOG("loading event %s", customEvent->activity.c_str());
+                BLOG("当前正在加载的事件名称： %s", customEvent->activity.c_str());
                 ::nlohmann::json actions = getJsonValue<::nlohmann::json>(actionEvent, "actions",
                                                                           ::nlohmann::json());
                 for (const ::nlohmann::json &action: actions) {
@@ -589,7 +603,7 @@ namespace fastbotx {
                     auto customAction = std::make_shared<CustomAction>(
                             stringToActionType(actionTypeString));
                     std::string xPathString = getJsonValue<std::string>(action, "xpath", "");
-                    BLOG("loading action %s", xPathString.c_str());
+                    BLOG("当前正在加载的动作 %s", xPathString.c_str());
                     customAction->xpath = std::make_shared<Xpath>(xPathString);
                     customAction->text = getJsonValue<std::string>(action, "text", "");
                     customAction->clearText = getJsonValue<bool>(action, "clearText", false);
@@ -597,10 +611,11 @@ namespace fastbotx {
                     customAction->waitTime = getJsonValue<int>(action, "wait", 0);
                     customAction->adbInput = getJsonValue<bool>(action, "useAdbInput", false);
                     customAction->allowFuzzing = false;
+                    // 如果是 shell 类型的动作，额外提取命令字段
                     if (customAction->getActionType() == ActionType::SHELL_EVENT) {
                         customAction->command = getJsonValue<std::string>(actions, "command", "");
                     }
-                    BLOG("loading action %s", xPathString.c_str());
+                    //BLOG("自定义动作 %s", xPathString.c_str());
                     customEvent->actions.push_back(customAction);
                 }
                 this->_customEvents.push_back(customEvent);
@@ -615,16 +630,22 @@ namespace fastbotx {
         if (fileContent.empty())
             return;
         try {
-            BLOG("loading black widgets  : %s", BlackWidgetFilePath.c_str());
+            BLOG("屏蔽控件或区域  : %s", BlackWidgetFilePath.c_str());
+            // 记录开始加载动作配置文件的日志，解析整个动作事件的 JSON 数组
             ::nlohmann::json actions = ::nlohmann::json::parse(fileContent);
+            //循环遍历 每一个数组元素
             for (const ::nlohmann::json &action: actions) {
                 CustomActionPtr act = std::make_shared<CustomAction>();
+                //获取文件的 xpath 字符
                 std::string xpathstr = getJsonValue<std::string>(action, "xpath", "");
                 if (!xpathstr.empty())
+                    //创建Xpath 对象，赋值act的 xpath 成员变量
                     act->xpath = std::make_shared<Xpath>(xpathstr);
-                BLOG("loading black widget %s", xpathstr.c_str());
+                BLOG("正在加载黑控件区域 %s", xpathstr.c_str());
+                //赋值文件的activity 到act的activity成员变量
                 act->activity = getJsonValue<std::string>(action, "activity", "");
                 this->_blackWidgetActions.push_back(act);
+                //获取文件的 bounds
                 std::string boundsstr = getJsonValue<std::string>(action, "bounds", "");
                 if (!boundsstr.empty()) {
                     act->bounds.resize(4);

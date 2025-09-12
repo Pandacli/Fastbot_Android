@@ -1,5 +1,5 @@
 # @author Jianqiang Guo, Yuhui Su
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10...3.20)
 project(fastbot_native)
 
 # 设置默认的库路径为 mac 平台
@@ -29,7 +29,7 @@ IF (CMAKE_BUILD_TYPE MATCHES "Release")
  message(STATUES "compile release")
 ELSE (CMAKE_BUILD_TYPE MATCHES "Release")
 # 非发布版本添加调试宏定义
-add_definitions(-D_DEBUG_)
+add_definitions(-D      _DEBUG_)
 ENDIF (CMAKE_BUILD_TYPE MATCHES "Release")
 
 # 设置 Android STL 类型
@@ -53,7 +53,7 @@ set(ANDROID_ARM_NEON ON)
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}  -s -Wall ")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}  -s -Wall ")
 
-# 查找 Android 日志库
+#链接 Android 系统库（如需使用 Android 特定 API，如日志库）
 find_library( # Sets the name of the path variable.
               log-lib
 
@@ -95,7 +95,7 @@ file( GLOB SRC_LIST
 # 输出源文件列表，用于调试
 message(STATUS ${SRC_LIST})
 
-# 创建共享库 fastbot_native
+# 创建共享库 fastbot_native，添加源文件（替换为你的 C/C++ 代码文件）
 add_library( # Sets the name of the library.
              fastbot_native
              # Sets the library as a shared library.
