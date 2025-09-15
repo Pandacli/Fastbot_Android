@@ -643,6 +643,7 @@ public class Monkey {
      * @return Returns a posix-style result code. 0 for no error.
      */
     private int run(String[] args, String version) {
+        //monkey 开始执行
         // Super-early debugger wait
         for (String s : args) {
             if ("--wait-dbg".equals(s)) {
@@ -670,29 +671,27 @@ public class Monkey {
         if (!processOptions()) {
             return -1;
         }
-
         // Load package blacklist or whitelist (if specified).
         if (!loadPackageLists()) {
             return -1;
         }
-
         // Load activity blacklist or whitelist (if specified).
         if (!loadActivityLists()) {
             return -1;
         }
-
         // now set up additional data in preparation for launch
         if (mMainCategories.size() == 0 && mMainIntentAction == null) {
+            //限制测试范围：通过指定Category，可以控制Monkey测试只启动特定类别的Activity
+            //精确测试：允许用户针对特定类型的界面进行测试，而不是随机测试所有Activity
             mMainCategories.add(Intent.CATEGORY_LAUNCHER);
             mMainCategories.add(Intent.CATEGORY_MONKEY);
+            mMainCategories.add(Intent.CATEGORY_DEFAULT);
         }
-
         // set seed
         if (mSeed == 0) {
             //确保每次运行时生成不同的随机序列。
             mSeed = System.currentTimeMillis() + System.identityHashCode(this);
         }
-
         // print important parameters
         if (mVerbose > 0) {
             //Logger.println("// Monkey: seed=" + mSeed + " count=" + mCount + "\n\n");
@@ -1233,7 +1232,6 @@ public class Monkey {
 
     /**
      * Load package blacklist or whitelist (if specified).
-     *
      * @return Returns false if any error occurs.
      */
     private boolean loadPackageLists() {
@@ -1301,10 +1299,12 @@ public class Monkey {
      * activities
      */
     private boolean getMainApps() {
+        //获取系统上下文
         Context systemContext = ContextUtils.getSystemContext();
         if (systemContext == null){
             return false;
         }
+        //获取包管理器
         PackageManager packageManager = systemContext.getPackageManager();
         if (mMainIntentAction != null && mMainIntentData != null) {
             // 创建主界面Intent并查询可处理该Intent的Activity
