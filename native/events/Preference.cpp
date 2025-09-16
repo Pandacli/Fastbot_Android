@@ -662,19 +662,22 @@ namespace fastbotx {
         }
     }
 
+    //加载黑白名单 package ，Activity
     void Preference::loadWhiteBlackList() {
         std::string contentBlack = fastbotx::Preference::loadFileContent(BlackListFilePath);
         if (contentBlack.empty())
             return;
         std::vector<std::string> texts;
+        //分割String 内容，保存到vector-texts中
         splitString(contentBlack, texts, '\n');
+        //交换两个 vector 容器的内容
         this->_blackList.swap(texts);
-        BLOG("blacklist :\n %s", contentBlack.c_str());
+        BLOG("blacklist黑名单package加载 :\n %s", contentBlack.c_str());
         std::string contentWhite = fastbotx::Preference::loadFileContent(WhiteListFilePath);
         std::vector<std::string> textsw;
         splitString(contentWhite, textsw, '\n');
         this->_whiteList.swap(textsw);
-        BLOG("whitelist :\n %s", contentWhite.c_str());
+        BLOG("whitelist白名单package加载 :\n %s", contentWhite.c_str());
     }
 
 ///Load texts for input from specified file of designed text or file of fuzzing text

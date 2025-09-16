@@ -49,7 +49,6 @@ public class MonkeyRotationEvent extends MonkeyEvent {
         if (verbose > 0) {
             Logger.println(":Sending rotation degree=" + mRotationDegree + ", persist=" + mPersist);
         }
-
         // inject rotation event
         try {
             iwm.freezeRotation(mRotationDegree);

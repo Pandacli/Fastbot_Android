@@ -367,7 +367,7 @@ public class AndroidDevice {
      */
     public static int executeCommandAndWaitFor(String[] cmd) throws InterruptedException, IOException {
         int resultCode = Runtime.getRuntime().exec(cmd).waitFor();
-        Logger.println("am 命令执行退出状态码：（0表示正常结束，非0代表异常结束）："+resultCode);
+        Logger.println("am 命令执行退出状态码："+resultCode);
         return resultCode;
     }
 

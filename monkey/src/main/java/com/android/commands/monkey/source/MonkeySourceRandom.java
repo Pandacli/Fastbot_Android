@@ -439,7 +439,8 @@ public class MonkeySourceRandom implements MonkeyEventSource {
             generateTrackballEvent(mRandom);
             return;
         } else if (cls < mFactors[FACTOR_ROTATION]) {
-            generateRotationEvent(mRandom);
+            //禁用翻转事件
+            //generateRotationEvent(mRandom);
             return;
         } else if (cls < mFactors[FACTOR_PERMISSION]) {
             mQ.add(mPermissionUtil.generateRandomPermissionEvent(mRandom));

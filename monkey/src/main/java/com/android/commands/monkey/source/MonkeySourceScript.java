@@ -376,7 +376,8 @@ public class MonkeySourceScript implements MonkeyEventSource {
                 int persist = Integer.parseInt(args[1]);
                 if ((rotationDegree == Surface.ROTATION_0) || (rotationDegree == Surface.ROTATION_90)
                         || (rotationDegree == Surface.ROTATION_180) || (rotationDegree == Surface.ROTATION_270)) {
-                    mQ.addLast(new MonkeyRotationEvent(rotationDegree, persist != 0));
+                    //禁用翻转事件
+                    //mQ.addLast(new MonkeyRotationEvent(rotationDegree, persist != 0));
                 }
             } catch (NumberFormatException e) {
             }

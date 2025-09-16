@@ -765,7 +765,6 @@ public class Monkey {
         } else if (mUseApeNative) {
             // fastbot monkey
             Logger.println("// runing fastbot");
-
             // init framework android device
             AndroidDevice.initializeAndroidDevice(mAm, mWm, mPm, ime);
             AndroidDevice.checkInteractive();
@@ -833,7 +832,7 @@ public class Monkey {
             // Release the rotation lock if it's still held and restore the
             // original orientation.
             Logger.println("// Monkey is over!");
-            new MonkeyRotationEvent(Surface.ROTATION_0, false).injectEvent(mWm, mAm, mVerbose);
+            //new MonkeyRotationEvent(Surface.ROTATION_0, false).injectEvent(mWm, mAm, mVerbose);
         }
 
         if (this.mEventSource instanceof MonkeySourceRandom) {
