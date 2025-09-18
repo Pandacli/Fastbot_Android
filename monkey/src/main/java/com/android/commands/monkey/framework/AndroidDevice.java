@@ -143,12 +143,14 @@ public class AndroidDevice {
      * @return If ADBKeyboard IME exists and enabled, return true, false otherwise.
      */
     private static boolean enableADBKeyboard() {
+        //读取系统所有已启用的输入法
         List<InputMethodInfo> inputMethods = AndroidDevice.inputMethodManager.getEnabledInputMethodList();
         if (inputMethods != null) {
+            //遍历所有已启用的输入法
             for (InputMethodInfo imi : inputMethods) {
-                Logger.println("InputMethod ID: " + imi.getId());
+                Logger.println("输入法ID: " + imi.getId());
                 if (IME_ADB_KEYBOARD.equals(imi.getId())) {
-                    Logger.println("Find Keyboard: " + IME_ADB_KEYBOARD);
+                    Logger.println("找到ADB Keyboard 输入法: " + IME_ADB_KEYBOARD);
                     return true;
                 }
             }
@@ -367,7 +369,7 @@ public class AndroidDevice {
      */
     public static int executeCommandAndWaitFor(String[] cmd) throws InterruptedException, IOException {
         int resultCode = Runtime.getRuntime().exec(cmd).waitFor();
-        Logger.println("am 命令执行退出状态码："+resultCode);
+        //Logger.println("am 命令执行退出状态码："+resultCode);
         return resultCode;
     }
 

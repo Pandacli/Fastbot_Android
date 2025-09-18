@@ -108,12 +108,12 @@ public abstract class MonkeyUtils {
         public void dump() {
             if (mValidPackages.size() > 0) {
                 for (String mValidPackage : mValidPackages) {
-                    Logger.println("// AllowPackage: " + mValidPackage);
+                    Logger.println("//允许运行monkeyq 的Package: " + mValidPackage);
                 }
             }
             if (mInvalidPackages.size() > 0) {
                 for (String mInvalidPackage : mInvalidPackages) {
-                    Logger.println("// DisallowPackage: " + mInvalidPackage);
+                    Logger.println("//不允许允许monkeyq 的Package: " + mInvalidPackage);
                 }
             }
         }
@@ -135,10 +135,12 @@ public abstract class MonkeyUtils {
         }
 
         public void addValidActivities(Set<String> validActivities) {
+            Logger.println("//添加白名单的Activity: " + validActivities.toString());
             mValidActivities.addAll(validActivities);
         }
 
         public void addInvalidActivities(Set<String> invalidActivities) {
+            Logger.println("//添加黑名单的Activity: " + invalidActivities.toString());
             mInvalidActivities.addAll(invalidActivities);
         }
 

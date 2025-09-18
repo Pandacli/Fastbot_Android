@@ -1,1 +1,3 @@
 com.android.car.settings.common.CarSettingActivities$HomepageActivity
+com.android.car.settings.bluetooth.BluetoothRequestPermissionActivity
+com.android.car.settings.common.CarSettingActivities$AssistantAndVoiceSettingsActivity

@@ -672,12 +672,12 @@ namespace fastbotx {
         splitString(contentBlack, texts, '\n');
         //交换两个 vector 容器的内容
         this->_blackList.swap(texts);
-        BLOG("blacklist黑名单package加载 :\n %s", contentBlack.c_str());
+        BLOG("blacklist :\n %s", contentBlack.c_str());
         std::string contentWhite = fastbotx::Preference::loadFileContent(WhiteListFilePath);
         std::vector<std::string> textsw;
         splitString(contentWhite, textsw, '\n');
         this->_whiteList.swap(textsw);
-        BLOG("whitelist白名单package加载 :\n %s", contentWhite.c_str());
+        BLOG("whitelist :\n %s", contentWhite.c_str());
     }
 
 ///Load texts for input from specified file of designed text or file of fuzzing text

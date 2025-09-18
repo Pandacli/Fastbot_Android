@@ -86,7 +86,7 @@ public class MonkeyActivityEvent extends MonkeyEvent {
         }
         String activityName =(intent.getComponent()!=null)?intent.getComponent().getClassName():"Unknown";
         int result = AndroidDevice.startActivity(intent);
-        Logger.println("启动设备Activity（1代表成功，0代表失败）："+result+",Activity name:"+activityName);
+        Logger.println("启动Activity（1代表成功，0代表失败）："+result+",Activity name:"+activityName);
         return MonkeyEvent.INJECT_SUCCESS;
     }
 }

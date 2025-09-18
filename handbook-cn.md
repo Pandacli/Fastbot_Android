@@ -291,7 +291,7 @@ ADBKeyBoard在输入栏自动输入内容，屏蔽UI输入法
 **适用需求：** 测试过程中“半路”中途退出登录，屏蔽退出登录按钮
 1. 黑控件、黑区域
     * 在PC端新建 `max.widget.black` 文件（名称固定为：max.widget.black），文件内容配置格式如下：
-    * 匹配条件activity：当activity与currentactivity一致时执行如下匹配
+    * 匹配条件activity：当activity与一致时执行如下匹配
     * 屏蔽控件或区域共有三种方式：
         * 配置bounds：屏蔽某个区域，在该区域内的控件或坐标不会被点击，bounds 为 0.0～1.0 之间的一个百分比值。
         * 配置xpath：查找匹配的控件，屏蔽点击该控件。

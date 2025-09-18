@@ -18,6 +18,7 @@
 
 package com.android.commands.monkey;
 
+import android.os.Process;
 import android.app.IActivityController;
 import android.app.IActivityManager;
 import android.content.ComponentName;
@@ -403,7 +404,6 @@ public class Monkey {
     private String mMappingFilePath = "";
 
 
-
     /**
      * application version
      */
@@ -448,20 +448,21 @@ public class Monkey {
 
     /**
      * Command-line entry point.
-     *
      * @param args The command-line arguments
      */
     public static void main(String[] args) {
         //Logger.logo();
         String version = fastbotversion;
-        // Set the process name showing in "ps" or "top"
-        Process.setArgV0("com.android.commands.monkey");
-        Logger.println(" @Version: " + version);
         try {
+            // Set the process name showing in "ps" or "top"
+            Class<?> processClass = Class.forName("android.os.Process");
+            java.lang.reflect.Method setArgV0Method = processClass.getMethod("setArgV0", String.class);
+            setArgV0Method.invoke(null, "com.android.commands.monkey");
+            Logger.println(" @Version: " + version);
             int resultCode = (new Monkey()).run(args, version);
             System.exit(resultCode);
         } catch (Throwable e) {
-            Logger.println("Internal error"+e.getMessage());
+            Logger.println("Internal error" + e.getMessage());
             e.printStackTrace();
             Logger.println("Please report this bug issue to github");
             System.exit(1);
@@ -616,7 +617,7 @@ public class Monkey {
     private void writeScriptLog(int count) {
         try {
             Writer output = new BufferedWriter(
-                    new FileWriter(new File(Environment.getLegacyExternalStorageDirectory(), "scriptlog.txt"), true));
+                    new FileWriter(new File( Environment.getExternalStorageDirectory() , "scriptlog.txt"), true));
             output.write(
                     "iteration: " + count + " time: " + MonkeyUtils.toCalendarTime(System.currentTimeMillis()) + "\n");
             output.close();
@@ -638,7 +639,6 @@ public class Monkey {
 
     /**
      * Run the command!
-     *
      * @param args The command-line arguments
      * @return Returns a posix-style result code. 0 for no error.
      */
@@ -677,6 +677,7 @@ public class Monkey {
         }
         // Load activity blacklist or whitelist (if specified).
         if (!loadActivityLists()) {
+            Logger.println("加载AcitivityList失败！");
             return -1;
         }
         // now set up additional data in preparation for launch
@@ -694,7 +695,6 @@ public class Monkey {
         }
         // print important parameters
         if (mVerbose > 0) {
-            //Logger.println("// Monkey: seed=" + mSeed + " count=" + mCount + "\n\n");
             MonkeyUtils.getPackageFilter().dump();
             MonkeyUtils.getActivityFilter().dump();
             if (mMainCategories.size() != 0) {
@@ -729,27 +729,20 @@ public class Monkey {
         if (!addLauncherToValidActivity()) {
             return -5;
         }
-
-
         mRandom = new Random(mSeed);
         String name = mMainApps.get(0).getPackageName();
         try {
             Thread.sleep(3 * 1000);
         } catch (InterruptedException e) {
         }
-
-        //todo maybe set out failed
         System.setOut(System.out);
-
         Logger.println("// phone info： " + android.os.Build.MANUFACTURER + "_" + android.os.Build.MODEL + "_" + Build.VERSION.RELEASE);
-
         // script monkey
         if (mScriptFileNames != null && mScriptFileNames.size() == 1) {
             // script mode, ignore other options
             mEventSource = new MonkeySourceScript(mRandom, mScriptFileNames.get(0), mThrottle, mRandomizeThrottle,
                     mProfileWaitTime, mDeviceSleepTime);
             mEventSource.setVerbose(mVerbose);
-
             mCountEvents = false;
         } else if (mScriptFileNames != null && mScriptFileNames.size() > 1) {
             if (mSetupFileName != null) {
@@ -764,18 +757,15 @@ public class Monkey {
             mCountEvents = false;
         } else if (mUseApeNative) {
             // fastbot monkey
-            Logger.println("// runing fastbot");
+            //Logger.println("//runing fastbot");
             // init framework android device
             AndroidDevice.initializeAndroidDevice(mAm, mWm, mPm, ime);
             AndroidDevice.checkInteractive();
-
             if (!"".equals(mMappingFilePath) && !"max.mapping".equals(mMappingFilePath)) {
                 AiClient.loadResMapping(mMappingFilePath);
             }
-
             mEventSource = new MonkeySourceApeNative(mRandom, mMainApps, mThrottle, mRandomizeThrottle, mPermissionTargetSystem, mOutputDirectory);
             mEventSource.setVerbose(mVerbose);
-
             // grant all permissions required, enabled by default
             if (grantAllPermission) {
                 ((MonkeySourceApeNative) mEventSource).grantRuntimePermissions("GrantPermissionsActivity");
@@ -796,7 +786,6 @@ public class Monkey {
             }
             AndroidDevice.initializeAndroidDevice(mAm, mWm, mPm, ime);
             AndroidDevice.checkInteractive();
-
             mEventSource = new MonkeySourceRandom(mRandom, mMainApps, mThrottle, mRandomizeThrottle,
                     mPermissionTargetSystem, mOutputDirectory);
             mEventSource.setVerbose(mVerbose);
@@ -807,32 +796,27 @@ public class Monkey {
                     ((MonkeySourceRandom) mEventSource).setFactors(i, mFactors[i]);
                 }
             }
-
             // in random mode, we start with a random activity
             ((MonkeySourceRandom) mEventSource).generateActivity();
         }
-
         // validate source generator
         if (!mEventSource.validate()) {
             return -5;
         }
-
         // If we're profiling, do it immediately before/after the main monkey
         if (mGenerateHprof) {
             signalPersistentProcesses();
         }
-
         int crashedAtCycle = 0;
-        Logger.println("\n");
-
         try {
             // run looper, generate event
             crashedAtCycle = runMonkeyCycles();
         } finally {
             // Release the rotation lock if it's still held and restore the
             // original orientation.
-            Logger.println("// Monkey is over!");
-            //new MonkeyRotationEvent(Surface.ROTATION_0, false).injectEvent(mWm, mAm, mVerbose);
+            Logger.println("// Monkey 测试已完成，准备还原屏幕翻转正常!");
+            //monkey over后翻转正常
+            new MonkeyRotationEvent(Surface.ROTATION_0, false).injectEvent(mWm, mAm, mVerbose);
         }
 
         if (this.mEventSource instanceof MonkeySourceRandom) {
@@ -841,7 +825,7 @@ public class Monkey {
 
         if (this.mEventSource instanceof MonkeySourceApeNative) {
             new MutationAirplaneEvent().resetStatusAndExecute(mWm, mAm, mVerbose);
-            new MutationWifiEvent().resetStatusAndExecute(mWm,mAm,mVerbose);
+            new MutationWifiEvent().resetStatusAndExecute(mWm, mAm, mVerbose);
             ((MonkeySourceApeNative) this.mEventSource).tearDown();
         }
 
@@ -989,7 +973,7 @@ public class Monkey {
                         break;
                     case "--running-minutes":
                         mRunningMillis = nextOptionLong("Running Minutes") * ONE_MINUTE_IN_MILLISECOND;
-                        Logger.println("monkeyq 运行时长"+mRunningMillis);
+                        Logger.println("monkeyq 运行时长" + mRunningMillis/1000 + "秒");
                         break;
                     case "--pct-touch": {
                         int i = MonkeySourceRandom.FACTOR_TOUCH;
@@ -1055,19 +1039,19 @@ public class Monkey {
                     }
                     case "--pkg-blacklist-file":
                         mPkgBlacklistFile = nextOptionData();
-                        Logger.println("Package黑名单配置："+mPkgBlacklistFile);
+                        Logger.println("Package黑名单配置：" + mPkgBlacklistFile);
                         break;
                     case "--pkg-whitelist-file":
                         mPkgWhitelistFile = nextOptionData();
-                        Logger.println("Package白名单配置："+mPkgWhitelistFile);
+                        Logger.println("Package白名单配置：" + mPkgWhitelistFile);
                         break;
                     case "--act-blacklist-file":
                         mActBlacklistFile = nextOptionData();
-                        Logger.println("Activity黑名单配置:"+mActBlacklistFile);
+                        Logger.println("Activity黑名单配置:" + mActBlacklistFile);
                         break;
                     case "--act-whitelist-file":
                         mActWhitelistFile = nextOptionData();
-                        Logger.println("Activity白名单配置："+mActWhitelistFile);
+                        Logger.println("Activity白名单配置：" + mActWhitelistFile);
                         break;
                     case "--throttle":
                         mThrottle = nextOptionLong("delay (in milliseconds) to wait between events");
@@ -1113,10 +1097,10 @@ public class Monkey {
                         getSystemInterfaces();
                         AndroidDevice.initializeAndroidDevice(mAm, mWm, mPm, ime);
                         ComponentName componentName = AndroidDevice.getTopActivityComponentName();
-                        if (componentName!=null){
-                            Logger.println("Top activity name is:"+componentName.getClassName());
-                            Logger.println("Top package name is:"+componentName.getPackageName());
-                            Logger.println("Top short activity name is:"+componentName.getShortClassName());
+                        if (componentName != null) {
+                            Logger.println("Top activity name is:" + componentName.getClassName());
+                            Logger.println("Top package name is:" + componentName.getPackageName());
+                            Logger.println("Top short activity name is:" + componentName.getShortClassName());
                         }
                         return false;
                     case "--periodic-bugreport":
@@ -1213,9 +1197,9 @@ public class Monkey {
                 newFile = new File(file.getAbsolutePath() + "." + count);
             }
             Logger.format("Rename %s to %s", file, newFile);
-            if(file.renameTo(newFile)){
+            if (file.renameTo(newFile)) {
                 Logger.format("Rename %s to %s succeed", file, newFile);
-            }else{
+            } else {
                 Logger.format("Rename %s to %s failed", file, newFile);
             }
         }
@@ -1231,6 +1215,7 @@ public class Monkey {
 
     /**
      * Load package blacklist or whitelist (if specified).
+     *
      * @return Returns false if any error occurs.
      */
     private boolean loadPackageLists() {
@@ -1300,7 +1285,7 @@ public class Monkey {
     private boolean getMainApps() {
         //获取系统上下文
         Context systemContext = ContextUtils.getSystemContext();
-        if (systemContext == null){
+        if (systemContext == null) {
             return false;
         }
         //获取包管理器
@@ -1716,7 +1701,7 @@ public class Monkey {
      * Dump log/crash log
      *
      * @param logTimeStamp the timestamp of the log
-     * @param msg       some information，etc crash stack
+     * @param msg          some information，etc crash stack
      */
     private void writeDumpLog(String logTimeStamp, String msg) {
         FileWriter fileWriter = null;
@@ -1762,25 +1747,21 @@ public class Monkey {
             Logger.warningPrintln("// : you can not specify a activity blacklist together with a whitelist or individual activitys (via -p).");
             return false;
         }
-
         Set<String> valid = new HashSet<>();
         if (mActWhitelistFile != null && !loadPackageListFromFile(mActWhitelistFile, valid)) {
             return false;
         }
         MonkeyUtils.getActivityFilter().addValidActivities(valid);
-
         Set<String> invalid = new HashSet<>();
         if (mActBlacklistFile != null && !loadPackageListFromFile(mActBlacklistFile, invalid)) {
             return false;
         }
         MonkeyUtils.getActivityFilter().addInvalidActivities(invalid);
-
         return true;
     }
 
     /**
      * Adding user-defined valid activity
-     *
      * @return Returns false if any error occurs.
      */
     private boolean addLauncherToValidActivity() {

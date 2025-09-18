@@ -54,6 +54,7 @@ import android.os.HandlerThread;
 
 import java.lang.Exception;
 
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -279,8 +280,20 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
             throw new IllegalStateException("Already connected!");
         }
         mHandlerThread.start();
-        mUiAutomation = new UiAutomation(mHandlerThread.getLooper(), new UiAutomationConnection());
-        mUiAutomation.connect();
+        Looper looper = mHandlerThread.getLooper();
+        if (looper != null) {
+            try {
+                mUiAutomation = new UiAutomation(looper, new UiAutomationConnection());
+                mUiAutomation.connect();
+            } catch (Exception e) {
+                // 处理连接异常，可能需要清理资源或记录错误日志
+                e.printStackTrace();
+                mUiAutomation = null;
+            }
+        } else {
+            // 处理looper为null的情况
+            mUiAutomation = null;
+        }
 
         AccessibilityServiceInfo info = mUiAutomation.getServiceInfo();
         // Compress this node
@@ -1163,8 +1176,9 @@ public class MonkeySourceApeNative implements MonkeyEventSource {
             case SHELL_EVENT:
                 ModelAction modelAction = (ModelAction) action;
                 ShellEvent shellEvent = new ShellEvent(modelAction.getShellCommand(), modelAction.getWaitTime());
-                List<MonkeyEvent> monkeyEvents = shellEvent.generateMonkeyEvents();
-                addEvents(monkeyEvents);
+                // generate monkey events 翻盘事件
+                //List<MonkeyEvent> monkeyEvents = shellEvent.generateMonkeyEvents();
+                //addEvents(monkeyEvents);
                 break;
             default:
                 throw new RuntimeException("Should not reach here");

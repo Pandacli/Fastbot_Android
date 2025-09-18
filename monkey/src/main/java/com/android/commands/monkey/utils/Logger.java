@@ -77,7 +77,7 @@ public class Logger {
     }
 
     public static void errorPrintln(Object message) {
-        System.err.format(TAG + "*** ERROR *** %s\n", message);
+        System.err.format(TAG + " %s\n", message);
         Log.e(TAG, "*** ERROR *** "+ message);
     }
 }

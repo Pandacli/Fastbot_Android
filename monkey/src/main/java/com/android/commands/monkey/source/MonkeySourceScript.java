@@ -368,7 +368,6 @@ public class MonkeySourceScript implements MonkeyEventSource {
             }
             return;
         }
-
         // Handle screen rotation events
         if ((s.indexOf(EVENT_KEYWORD_ROTATION) >= 0) && args.length == 2) {
             try {
@@ -376,8 +375,9 @@ public class MonkeySourceScript implements MonkeyEventSource {
                 int persist = Integer.parseInt(args[1]);
                 if ((rotationDegree == Surface.ROTATION_0) || (rotationDegree == Surface.ROTATION_90)
                         || (rotationDegree == Surface.ROTATION_180) || (rotationDegree == Surface.ROTATION_270)) {
-                    //禁用翻转事件
-                    //mQ.addLast(new MonkeyRotationEvent(rotationDegree, persist != 0));
+                    //翻转事件
+                    MonkeyRotationEvent monkeyRotationEvent = new MonkeyRotationEvent(rotationDegree, persist != 0);
+                    mQ.addLast(monkeyRotationEvent);
                 }
             } catch (NumberFormatException e) {
             }

@@ -415,8 +415,9 @@ public class MonkeySourceRandom implements MonkeyEventSource {
      * @param random Random number source for rotation degree.
      */
     private void generateRotationEvent(Random random) {
-        mQ.addLast(new MonkeyRotationEvent(SCREEN_ROTATION_DEGREES[random.nextInt(SCREEN_ROTATION_DEGREES.length)],
-                random.nextBoolean()));
+        MonkeyRotationEvent monkeyRotationEvent = new MonkeyRotationEvent(SCREEN_ROTATION_DEGREES[random.nextInt(SCREEN_ROTATION_DEGREES.length)],
+                random.nextBoolean());
+        mQ.addLast(monkeyRotationEvent);
     }
 
     /**

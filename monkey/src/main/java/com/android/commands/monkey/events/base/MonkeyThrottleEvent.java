@@ -41,9 +41,10 @@ public class MonkeyThrottleEvent extends MonkeyEvent {
      */
     @Override
     public int injectEvent(IWindowManager iwm, IActivityManager iam, int verbose) {
+        Logger.println("事件注入开始");
         long sleep = mThrottle / 1000;
         if (verbose > 1 && mThrottle > 0) {
-            Logger.println("点击频率 参数： " + mThrottle + "，将执行休眠" + sleep + "秒");
+            Logger.println("点击频率mThrottle： " + mThrottle + "，将执行休眠" + sleep + "秒");
         }
         try {
             Thread.sleep(mThrottle);
@@ -51,7 +52,7 @@ public class MonkeyThrottleEvent extends MonkeyEvent {
             Logger.warningPrintln("Monkey interrupted in sleep.");
             return MonkeyEvent.INJECT_FAIL;
         }
-
+        Logger.println("事件注入结束");
         return MonkeyEvent.INJECT_SUCCESS;
     }
 }

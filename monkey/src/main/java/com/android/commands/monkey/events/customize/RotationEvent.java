@@ -6,11 +6,14 @@ package com.android.commands.monkey.events.customize;
 
 import com.android.commands.monkey.events.CustomEvent;
 import com.android.commands.monkey.events.MonkeyEvent;
+import com.android.commands.monkey.events.base.MonkeyActivityEvent;
 import com.android.commands.monkey.events.base.MonkeyRotationEvent;
+import com.android.commands.monkey.source.MonkeySourceRandom;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,9 +41,17 @@ public class RotationEvent extends AbstractCustomEvent {
         return new RotationEvent(degree, persist);
     }
 
+    /**
+     * 生成monkey rotation事件对象，并添加到 singletonList中
+     * @return
+     */
     @Override
     public List<MonkeyEvent> generateMonkeyEvents() {
-        return Collections.<MonkeyEvent>singletonList(new MonkeyRotationEvent(rotationDegree, persist));
+        //生成旋转事件对象
+        MonkeyRotationEvent monkeyRotationEvent = new MonkeyRotationEvent(rotationDegree, persist);
+        List<MonkeyEvent> monkeyEvents = new ArrayList<>();
+        monkeyEvents.add(monkeyRotationEvent);
+        return monkeyEvents;
     }
 
     public JSONObject toJSONObject() throws JSONException {

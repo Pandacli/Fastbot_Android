@@ -83,7 +83,7 @@ public class MonkeyDataActivityEvent extends MonkeyEvent {
     public int injectEvent(IWindowManager iwm, IActivityManager iam, int verbose) {
         Intent intent = getEvent();
         if (intent == null) {
-            Logger.println("intent为空，启动设备Activity失败");
+            Logger.println("intent为空，启动Activity失败");
             return MonkeyEvent.INJECT_FAIL;
         }
         if (verbose > 0) {
@@ -97,7 +97,7 @@ public class MonkeyDataActivityEvent extends MonkeyEvent {
         }
         String activityName =(intent.getComponent()!=null)?intent.getComponent().getClassName():"Unknown";
         int result = AndroidDevice.startActivity(intent);
-        Logger.println("启动设备Activity（1代表成功，0代表失败）："+result+",Activity name:"+activityName);
+        Logger.println("启动Activity（1代表成功，0代表失败）："+result+",Activity name:"+activityName);
         return MonkeyEvent.INJECT_SUCCESS;
     }
 }
