@@ -369,20 +369,20 @@ public class MonkeySourceScript implements MonkeyEventSource {
             return;
         }
         // Handle screen rotation events
-        if ((s.indexOf(EVENT_KEYWORD_ROTATION) >= 0) && args.length == 2) {
-            try {
-                int rotationDegree = Integer.parseInt(args[0]);
-                int persist = Integer.parseInt(args[1]);
-                if ((rotationDegree == Surface.ROTATION_0) || (rotationDegree == Surface.ROTATION_90)
-                        || (rotationDegree == Surface.ROTATION_180) || (rotationDegree == Surface.ROTATION_270)) {
-                    //翻转事件
-                    MonkeyRotationEvent monkeyRotationEvent = new MonkeyRotationEvent(rotationDegree, persist != 0);
-                    mQ.addLast(monkeyRotationEvent);
-                }
-            } catch (NumberFormatException e) {
-            }
-            return;
-        }
+//        if ((s.indexOf(EVENT_KEYWORD_ROTATION) >= 0) && args.length == 2) {
+//            try {
+//                int rotationDegree = Integer.parseInt(args[0]);
+//                int persist = Integer.parseInt(args[1]);
+//                if ((rotationDegree == Surface.ROTATION_0) || (rotationDegree == Surface.ROTATION_90)
+//                        || (rotationDegree == Surface.ROTATION_180) || (rotationDegree == Surface.ROTATION_270)) {
+//                    //翻转事件
+//                    MonkeyRotationEvent monkeyRotationEvent = new MonkeyRotationEvent(rotationDegree, persist != 0);
+//                    mQ.addLast(monkeyRotationEvent);
+//                }
+//            } catch (NumberFormatException e) {
+//            }
+//            return;
+//        }
 
         // Handle tap event
         if ((s.indexOf(EVENT_KEYWORD_TAP) >= 0) && args.length >= 2) {
