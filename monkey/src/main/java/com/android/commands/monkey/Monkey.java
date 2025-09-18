@@ -814,9 +814,9 @@ public class Monkey {
         } finally {
             // Release the rotation lock if it's still held and restore the
             // original orientation.
-            Logger.println("// Monkey 测试已完成，准备还原屏幕翻转正常!");
+            Logger.println("// Monkey 测试已完成");
             //monkey over后翻转正常
-            new MonkeyRotationEvent(Surface.ROTATION_0, false).injectEvent(mWm, mAm, mVerbose);
+            //new MonkeyRotationEvent(Surface.ROTATION_0, false).injectEvent(mWm, mAm, mVerbose);
         }
 
         if (this.mEventSource instanceof MonkeySourceRandom) {

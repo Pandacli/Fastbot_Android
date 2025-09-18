@@ -2,5 +2,9 @@
 {
     "activity":"com.android.car.settings.common.CarSettingActivities$HomepageActivity",
     "xpath": "//*[@resource-id="android:id/button1"]"
-}
+},
+{
+    "activity":"com.android.car.settings.common.CarSettingActivities$HomepageActivity",
+    "xpath": "//*[@resource-id="com.android.car.settings:id/button3"]"
+},
 ]
